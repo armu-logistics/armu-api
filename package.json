@@ -4,7 +4,7 @@
   "description": "Node.js Demo for JWT Authentication",
   "main": "server.js",
   "scripts": {
-    "npm start": "node server.js",
+    "start": "nodemon server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -12,9 +12,11 @@
     "jwt",
     "authentication",
     "express",
-    "mysql"
+    "mysql",
+    "armu",
+    "armu logistics"
   ],
-  "author": "bezkoder",
+  "author": "Tony",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
