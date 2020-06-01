@@ -1,7 +1,10 @@
 const db = require("../models");
 const config = require("../config/auth.config");
+const uuid = require("uuid");
 const User = db.user;
 const Role = db.role;
+const PasswordReset = db.password_reset;
+const sendMail = require("../config/mail.config");
 
 const Op = db.Sequelize.Op;
 
@@ -82,6 +85,111 @@ exports.signin = (req, res) => {
           accessToken: token,
         });
       });
+    })
+    .catch((err) => {
+      res.status(500).send({ message: err.message });
+    });
+};
+
+exports.password_reset = (req, res) => {
+  User.findOne({
+    where: {
+      email: req.body.email,
+    },
+  }).then((user) => {
+    if (!user) {
+      return res.status(400).send({ message: "User does not exist!." });
+    } else {
+      let resetToken = Math.floor(Math.random(10000000) * 10000000);
+      let protocol = req.protocol;
+      const PORT = process.env.PORT || 8080;
+      let hostname = req.hostname + ":" + PORT;
+      let resetLink =
+        protocol + "://" + hostname + "/api/auth/password-reset/" + resetToken;
+      //save reset info to db
+      PasswordReset.create({
+        email: user.email,
+        token: resetToken,
+      }).then((reset) => {
+        reset.setUser(user);
+        Role.findOne({ where: { id: user.roleId } }).then((role) => {
+          reset.setRole(role);
+        });
+        console.log(Object.keys(reset.__proto__));
+        // send email
+        let email = user.email;
+        let subject = "PASSWORD RESET";
+        let html =
+          "<p>You are receiving this email because we received a password reset request for your account.</p>";
+        html +=
+          '<p>Click <a href="' +
+          resetLink +
+          '">here</a> to reset your password.</p></br></br>';
+        html +=
+          "<p>If you are having trouble clicking the link, copy and paste the URL below into your web browser:</p>";
+        html += resetLink;
+        sendMail(email, subject, html, (err, data) => {
+          if (err) {
+            return res
+              .status(500)
+              .json({ message: "Internal Error!", data: data });
+          } else {
+            return res.status(200).send({
+              message: "Email sent. Click on the link provided.",
+              resetLink: resetLink,
+            });
+          }
+        });
+      });
+    }
+  });
+};
+
+exports.password_reset_token = (req, res) => {
+  PasswordReset.findOne({
+    where: {
+      token: req.params.resetToken,
+    },
+    order: [["createdAt", "DESC"]],
+  })
+    .then((reset) => {
+      if (!reset) {
+        res.status(200).send({
+          message: "Invalid token",
+        });
+      } else {
+        if (req.body.password !== req.body.confirm_password)
+          return res
+            .status(200)
+            .send({ message: "Passwords provided don't match." });
+
+        //reset password
+        let newPassword = bcrypt.hashSync(req.body.password, 8);
+        let emailReset = reset.email;
+        let roleId = reset.roleId;
+        User.update(
+          { password: newPassword },
+          { where: { email: emailReset, roleId: roleId } }
+        )
+          .then((userReset) => {
+            PasswordReset.update(
+              {
+                token: null,
+                status: "reset",
+              },
+              {
+                where: { email: emailReset },
+              }
+            ).catch((err) => {
+              res.status(500).send({ message: err.message });
+            });
+
+            res.status(200).send({ message: "Password reset successfully!" });
+          })
+          .catch((err) => {
+            res.status(500).send({ message: err.message });
+          });
+      }
     })
     .catch((err) => {
       res.status(500).send({ message: err.message });
