@@ -5,7 +5,13 @@ module.exports = (sequelize, Sequelize) => {
       defaultValue: Sequelize.UUIDV4,
       primaryKey: true,
     },
-    username: {
+    first_name: {
+      type: Sequelize.STRING,
+    },
+    last_name: {
+      type: Sequelize.STRING,
+    },
+    mobile: {
       type: Sequelize.STRING,
     },
     email: {

@@ -47,6 +47,6 @@ db.password_reset.belongsTo(db.role);
 // farmer and farm
 db.farmer.hasMany(db.farm);
 db.farm.belongsTo(db.farmer);
-db.ROLES = ["user", "admin", "moderator"];
+db.ROLES = ["buyer", "farmer", "admin"];
 
 module.exports = db;
