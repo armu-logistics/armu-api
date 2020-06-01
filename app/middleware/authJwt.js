@@ -80,10 +80,44 @@ isModeratorOrAdmin = (req, res, next) => {
   });
 };
 
+// isfarmer
+isFarmer = (req, res, next) => {
+  User.findByPk(req.userId).then((user) => {
+    user.getRole().then((role) => {
+      if (role.name === "farmer") {
+        next();
+        return;
+      }
+
+      res.status(403).send({
+        message: "Require Farmer Role!",
+      });
+      return;
+    });
+  });
+};
+// is buyer
+isBuyer = (req, res, next) => {
+  User.findByPk(req.userId).then((user) => {
+    user.getRole().then((role) => {
+      if (role.name === "buyer") {
+        next();
+        return;
+      }
+
+      res.status(403).send({
+        message: "Require Buyer Role!",
+      });
+      return;
+    });
+  });
+};
 const authJwt = {
   verifyToken: verifyToken,
   isAdmin: isAdmin,
   isModerator: isModerator,
   isModeratorOrAdmin: isModeratorOrAdmin,
+  isFarmer: isFarmer,
+  isBuyer: isBuyer,
 };
 module.exports = authJwt;

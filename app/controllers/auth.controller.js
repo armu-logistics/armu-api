@@ -47,7 +47,7 @@ exports.signup = (req, res) => {
 exports.signin = (req, res) => {
   User.findOne({
     where: {
-      username: req.body.username,
+      email: req.body.email,
     },
   })
     .then((user) => {
@@ -72,13 +72,11 @@ exports.signin = (req, res) => {
       });
 
       var authorities = [];
-      user.getRoles().then((roles) => {
-        for (let i = 0; i < roles.length; i++) {
-          authorities.push("ROLE_" + roles[i].name.toUpperCase());
-        }
+      user.getRole().then((roles) => {
+        authorities.push("ROLE_" + roles.name.toUpperCase());
         res.status(200).send({
           id: user.id,
-          username: user.username,
+          username: user.first_name + " " + user.last_name,
           email: user.email,
           roles: authorities,
           accessToken: token,
