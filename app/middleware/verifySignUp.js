@@ -31,6 +31,11 @@ checkRolesExisted = (req, res, next) => {
       }
     }
   }
+  if (!req.body.roles) {
+    return res.status(400).send({
+      message: "Role not set!",
+    });
+  }
 
   next();
 };
