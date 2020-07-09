@@ -44,17 +44,17 @@ app.listen(PORT, () => {
 
 function initial() {
   Role.create({
-    id: uuid(),
+    id: "a8d8ee46-f798-429e-b523-59de9c538a18",
     name: "buyer",
   });
 
   Role.create({
-    id: uuid(),
+    id: "8688784d-9f7b-4e26-a262-d2a6fdb824a5",
     name: "farmer",
   });
 
   Role.create({
-    id: uuid(),
+    id: "af66e44c-da0f-41a0-8f43-0c812bad492c",
     name: "admin",
   });
 }
