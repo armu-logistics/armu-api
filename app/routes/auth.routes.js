@@ -10,13 +10,17 @@ module.exports = function (app) {
     next();
   });
 
+  app.get("/api/auth/getRoles", controller.getRoles);
+
   app.post(
     "/api/auth/signup",
     [verifySignUp.checkDuplicateEmail, verifySignUp.checkRolesExisted],
     controller.signup
   );
 
-  app.get("/api/auth/signup", controller.getSignup);
+  app.post("/api/auth/verify-account/:token", controller.verifyAccount);
+
+  app.post("/api/auth/resend-otp", controller.resendOtp);
 
   app.post("/api/auth/signin", controller.signin);
 

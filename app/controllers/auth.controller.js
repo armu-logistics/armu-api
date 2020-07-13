@@ -5,20 +5,25 @@ const User = db.user;
 const Role = db.role;
 const PasswordReset = db.password_reset;
 const sendMail = require("../config/mail.config");
+const crypto = require("crypto");
 
 const Op = db.Sequelize.Op;
 
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 
-exports.getSignup = (req, res) => {
-  Role.findAll({ where: { name: ["farmer", "buyer"] } }).then((roles) => {
+exports.getRoles = (req, res) => {
+  Role.findAll({
+    where: { name: ["farmer", "buyer"] },
+    attributes: ["id", "name"],
+  }).then((roles) => {
     res.send(roles);
   });
 };
 
 exports.signup = (req, res) => {
   // Save User to Database
+  let token = crypto.randomBytes(20).toString("hex");
   User.create({
     first_name: req.body.first_name,
     last_name: req.body.last_name,
@@ -26,6 +31,8 @@ exports.signup = (req, res) => {
     email: req.body.email,
     roles: req.body.roles,
     password: bcrypt.hashSync(req.body.password, 8),
+    vtoken: token,
+    verified: 0,
   })
     .then((user) => {
       Role.findAll({
@@ -36,14 +43,113 @@ exports.signup = (req, res) => {
         },
       }).then((roles) => {
         user.setRole(roles[0]).then(() => {
-          res
-            .status(200)
-            .send({ status: 1, message: "User registered successfully!" });
+          // send email
+          let verificationLink =
+            "http://www.armulogistics.com/auth/verifySignUp/" + token;
+          let email = user.email;
+          let subject = "VERIFY ACCOUNT";
+          let html =
+            "<p>You are receiving this email because you signed up to armu logistics.</p>";
+          html +=
+            '<p>Click <a href="' +
+            verificationLink +
+            '">here</a> to verify you account.</p></br></br>';
+          html +=
+            "<p>If you are having trouble clicking the link, copy and paste the URL below into your web browser:</p>";
+          html += verificationLink;
+          sendMail(email, subject, html, (err, data) => {
+            if (err) {
+              return res
+                .status(500)
+                .json({ message: "Internal Error!", data: data });
+            } else {
+              return res.status(200).send({
+                status: 1,
+                message: "User registered successfully! Please verfiy account.",
+                link: verificationLink,
+              });
+            }
+          });
         });
       });
     })
     .catch((err) => {
       res.status(500).send({ message: err.message });
+    });
+};
+
+exports.resendOtp = (req, res) => {
+  let token = crypto.randomBytes(20).toString("hex");
+
+  User.findOne({
+    where: { email: req.body.email, verified: [0, null] },
+  })
+    .then((user) => {
+      if (!user) {
+        throw new Error("Invalid request");
+      }
+      return User.update({ vtoken: token }, { where: { email: user.email } });
+    })
+    .then((updated) => {
+      let verificationLink =
+        "http://www.armulogistics/auth/resend-otp/" + token;
+      let email = req.body.email;
+      let subject = "VERIFY ACCOUNT";
+      let html =
+        "<p>You are receiving this email because you requested to verify your account.</p>";
+      html +=
+        '<p>Click <a href="' +
+        verificationLink +
+        '">here</a> to verify you account.</p></br></br>';
+      html +=
+        "<p>If you are having trouble clicking the link, copy and paste the URL below into your web browser:</p>";
+      html += verificationLink;
+      sendMail(email, subject, html, (err, data) => {
+        if (err) {
+          return res
+            .status(500)
+            .json({ message: "Internal Error!", data: data });
+        } else {
+          return res.status(200).send({
+            status: 1,
+            message: "Verification link is sent! Please verfiy account.",
+            link: verificationLink,
+          });
+        }
+      });
+    })
+    .catch((err) => {
+      console.log(err.message);
+      return res.status(500).send({ success: false, message: err.message });
+    });
+};
+
+exports.verifyAccount = (req, res) => {
+  User.findOne({
+    where: {
+      vtoken: req.params.token,
+    },
+  })
+    .then((user) => {
+      if (!user) {
+        throw new Error("Invalid request");
+      }
+      return User.update(
+        { vtoken: null, verified: 1 },
+        { where: { email: user.email } }
+      );
+    })
+    .then((verified) => {
+      if (verified) {
+        return res
+          .status(200)
+          .send({ success: true, message: "Account has been verified" });
+      }
+    })
+    .catch((err) => {
+      return res
+        .status(500)
+        .send({ success: false, message: "Invalid request!" });
     });
 };
 
@@ -56,6 +162,12 @@ exports.signin = (req, res) => {
     .then((user) => {
       if (!user) {
         return res.status(404).send({ message: "User Not found." });
+      }
+
+      if (user.verified != 1) {
+        return res
+          .status(401)
+          .send({ success: false, message: "Please verify account." });
       }
 
       var passwordIsValid = bcrypt.compareSync(
@@ -115,7 +227,6 @@ exports.password_reset = (req, res) => {
         Role.findOne({ where: { id: user.roleId } }).then((role) => {
           reset.setRole(role);
         });
-        console.log(Object.keys(reset.__proto__));
         // send email
         let email = user.email;
         let subject = "PASSWORD RESET";

@@ -1,4 +1,4 @@
-# Node.js – JWT Authentication & Authorization example with JSONWebToken & Sequelize
+# ARMU – JWT Authentication & Authorization with JSONWebToken & Sequelize
 
 ## Project setup
 
