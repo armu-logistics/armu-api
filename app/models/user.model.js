@@ -20,6 +20,12 @@ module.exports = (sequelize, Sequelize) => {
     password: {
       type: Sequelize.STRING,
     },
+    vtoken: {
+      type: Sequelize.STRING,
+    },
+    verified: {
+      type: Sequelize.INTEGER,
+    },
   });
 
   return User;

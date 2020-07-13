@@ -4,7 +4,8 @@
   "description": "Node.js Demo for JWT Authentication",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon server.js",
+    "dev": "nodemon server.js",
+    "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
