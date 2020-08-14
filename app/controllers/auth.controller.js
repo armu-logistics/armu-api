@@ -22,6 +22,7 @@ exports.getRoles = (req, res) => {
 };
 
 exports.signup = (req, res) => {
+  let userInfo;
   // Save User to Database
   let token = crypto.randomBytes(20).toString("hex");
   User.create({
@@ -35,44 +36,48 @@ exports.signup = (req, res) => {
     verified: 0,
   })
     .then((user) => {
-      Role.findAll({
+      userInfo = user;
+      return Role.findAll({
         where: {
           name: {
             [Op.or]: req.body.roles,
           },
         },
-      }).then((roles) => {
-        user.setRole(roles[0]).then(() => {
-          // send email
-          let verificationLink =
-            "http://www.armulogistics.com/auth/verifySignUp/" + token;
-          let email = user.email;
-          let subject = "VERIFY ACCOUNT";
-          let html =
-            "<p>You are receiving this email because you signed up to armu logistics.</p>";
-          html +=
-            '<p>Click <a href="' +
-            verificationLink +
-            '">here</a> to verify you account.</p></br></br>';
-          html +=
-            "<p>If you are having trouble clicking the link, copy and paste the URL below into your web browser:</p>";
-          html += verificationLink;
-          sendMail(email, subject, html, (err, data) => {
-            if (err) {
-              return res
-                .status(500)
-                .json({ message: "Internal Error!", data: data });
-            } else {
-              return res.status(200).send({
-                status: 1,
-                message: "User registered successfully! Please verfiy account.",
-                link: verificationLink,
-              });
-            }
-          });
+      });
+    })
+    .then((roles) => {
+      userInfo.setRole(roles[0]).then(() => {
+        // send email
+        let verificationLink =
+          "http://www.armulogistics.com/auth/verifySignUp/" + token;
+        let email = userInfo.email;
+        let subject = "VERIFY ACCOUNT";
+        let html =
+          "<p>You are receiving this email because you signed up to armu logistics.</p>";
+        html +=
+          '<p>Click <a href="' +
+          verificationLink +
+          '">here</a> to verify you account.</p></br></br>';
+        html +=
+          "<p>If you are having trouble clicking the link, copy and paste the URL below into your web browser:</p>";
+        html += verificationLink;
+        sendMail(email, subject, html, (err, data) => {
+          if (err) {
+            return res
+              .status(500)
+              .json({ message: "Internal Error!", data: data });
+          } else {
+            return res.status(200).send({
+              status: 1,
+              message: "User registered successfully! Please verfiy account.",
+              link: verificationLink,
+              userId: userInfo.id,
+            });
+          }
         });
       });
     })
+
     .catch((err) => {
       res.status(500).send({ message: err.message });
     });

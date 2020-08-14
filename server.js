@@ -15,7 +15,6 @@ app.use(bodyParser.json());
 
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: true }));
-
 // database
 const db = require("./app/models");
 const Role = db.role;
@@ -35,7 +34,13 @@ app.get("/", (req, res) => {
 // routes
 require("./app/routes/auth.routes")(app);
 require("./app/routes/user.routes")(app);
+require("./app/routes/buyer.routes")(app);
 
+app.use((err, req, res, next) => {
+  return res
+    .status(err.statusCode || 500)
+    .send({ success: false, message: err.message });
+});
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
