@@ -85,12 +85,11 @@ exports.updateBuyerDetails = (req, res) => {
         errHandler.statusCode = 500;
         throw errHandler;
       }
-      return res
-        .status(200)
-        .send({
-          success: true,
-          message: ["Buyer details updated successfully."],
-        });
+      return res.status(200).send({
+        success: true,
+        message: ["Buyer details updated successfully."],
+        data: createUpdate,
+      });
     })
     .catch((err) => {
       console.log(err);

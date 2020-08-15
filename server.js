@@ -35,6 +35,7 @@ app.get("/", (req, res) => {
 require("./app/routes/auth.routes")(app);
 require("./app/routes/user.routes")(app);
 require("./app/routes/buyer.routes")(app);
+require("./app/routes/farmer.routes")(app);
 
 app.use((err, req, res, next) => {
   return res
