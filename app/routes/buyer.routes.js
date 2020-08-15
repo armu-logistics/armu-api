@@ -5,4 +5,9 @@ module.exports = function (app) {
     "/api/buyer/profile/create-buyer-details",
     controller.createBuyerDetails
   );
+  app.post(
+    "/api/buyer/profile/update-buyer-details",
+    [authJwt.verifyToken, authJwt.isBuyer],
+    controller.updateBuyerDetails
+  );
 };
