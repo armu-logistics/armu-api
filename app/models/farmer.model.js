@@ -7,9 +7,11 @@ module.exports = (sequelize, Sequelize) => {
     },
     kra_pin: {
       type: Sequelize.STRING,
+      unique: true,
     },
     id_number: {
       type: Sequelize.STRING,
+      unique: true,
     },
     cooperative: {
       type: Sequelize.STRING,
