@@ -4,11 +4,8 @@ const cors = require("cors");
 require("dotenv").config();
 const app = express();
 const uuid = require("uuid");
-var corsOptions = {
-  origin: "http://localhost:8081",
-};
 
-app.use(cors(corsOptions));
+app.use(cors());
 
 // parse requests of content-type - application/json
 app.use(bodyParser.json());
