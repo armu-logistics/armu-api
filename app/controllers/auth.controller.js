@@ -57,7 +57,7 @@ exports.signup = (req, res) => {
           primaryContactName: Joi.string()
             .required()
             .label("Primary contact name"),
-          city: Joi.string().required().label("Cit"),
+          city: Joi.string().required().label("City"),
         }),
       }
     );
