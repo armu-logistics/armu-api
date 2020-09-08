@@ -5,13 +5,12 @@ module.exports = (sequelize, Sequelize) => {
       defaultValue: Sequelize.UUIDV4,
       primaryKey: true,
     },
-    kra_pin: {
+    businessRegistrationNumber: {
       type: Sequelize.STRING,
       unique: true,
     },
-    id_number: {
+    primaryContactName: {
       type: Sequelize.STRING,
-      unique: true,
     },
     city: {
       type: Sequelize.STRING,

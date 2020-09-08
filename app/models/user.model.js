@@ -5,10 +5,7 @@ module.exports = (sequelize, Sequelize) => {
       defaultValue: Sequelize.UUIDV4,
       primaryKey: true,
     },
-    first_name: {
-      type: Sequelize.STRING,
-    },
-    last_name: {
+    name: {
       type: Sequelize.STRING,
     },
     mobile: {
@@ -16,6 +13,10 @@ module.exports = (sequelize, Sequelize) => {
       unique: true,
     },
     email: {
+      type: Sequelize.STRING,
+      unique: true,
+    },
+    kra_pin: {
       type: Sequelize.STRING,
       unique: true,
     },
