@@ -6,6 +6,8 @@ const Role = db.role;
 const PasswordReset = db.password_reset;
 const sendMail = require("../config/mail.config");
 const crypto = require("crypto");
+const Joi = require("joi");
+const validate = require("../util/validation");
 
 const Op = db.Sequelize.Op;
 
@@ -22,6 +24,44 @@ exports.getRoles = (req, res) => {
 };
 
 exports.signup = (req, res) => {
+  const schema = Joi.object({
+    name: Joi.string().required().label("Name"),
+    mobile: Joi.string().required().label("Mobile number"),
+    email: Joi.string().required().email().label("Email"),
+    kra_pin: Joi.string().required().label("KRA pin"),
+    password: Joi.string().required().label("Password"),
+    roles: Joi.array()
+      .items(Joi.string().valid("farmer", "buyer"))
+      .max(1)
+      .min(1),
+  })
+    .when(
+      Joi.object({
+        roles: Joi.array().items(Joi.string().required().valid("farmer")),
+      }).unknown(),
+      {
+        then: Joi.object({
+          national_id: Joi.number().required().label("National I.D"),
+        }),
+      }
+    )
+    .when(
+      Joi.object({
+        roles: Joi.array().items(Joi.string().valid("buyer")),
+      }).unknown(),
+      {
+        then: Joi.object({
+          businessRegistrationNumber: Joi.string()
+            .required()
+            .label("Business Registration Number"),
+          primaryContactName: Joi.string()
+            .required()
+            .label("Primary contact name"),
+          city: Joi.string().required().label("City"),
+        }),
+      }
+    );
+  validate(req.body, schema, res);
   let userInfo, roleInfo;
   // Save User to Database
   let vtoken = crypto.randomBytes(20).toString("hex");
@@ -84,7 +124,7 @@ exports.signup = (req, res) => {
             .json({ message: "Internal Error!", data: data });
         } else {
           return res.status(200).send({
-            status: 1,
+            success: true,
             message: "User registered successfully! Please verfiy account.",
             link: verificationLink,
             userId: userInfo.id,
@@ -130,7 +170,7 @@ exports.resendOtp = (req, res) => {
             .json({ message: "Internal Error!", data: data });
         } else {
           return res.status(200).send({
-            status: 1,
+            success: true,
             message: "Verification link is sent! Please verfiy account.",
             link: verificationLink,
           });
