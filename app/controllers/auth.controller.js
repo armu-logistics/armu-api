@@ -22,18 +22,19 @@ exports.getRoles = (req, res) => {
 };
 
 exports.signup = (req, res) => {
-  let userInfo;
+  let userInfo, roleInfo;
   // Save User to Database
-  let token = crypto.randomBytes(20).toString("hex");
+  let vtoken = crypto.randomBytes(20).toString("hex");
+
   User.create({
-    first_name: req.body.first_name,
-    last_name: req.body.last_name,
+    name: req.body.name,
     mobile: req.body.mobile,
     email: req.body.email,
-    roles: req.body.roles,
+    kra_pin: req.body.kra_pin,
     password: bcrypt.hashSync(req.body.password, 8),
-    vtoken: token,
+    vtoken: vtoken,
     verified: 0,
+    roles: req.body.roles,
   })
     .then((user) => {
       userInfo = user;
@@ -45,39 +46,52 @@ exports.signup = (req, res) => {
         },
       });
     })
-    .then((roles) => {
-      userInfo.setRole(roles[0]).then(() => {
-        // send email
-        let verificationLink =
-          "http://www.armulogistics.com/auth/verifySignUp/" + token;
-        let email = userInfo.email;
-        let subject = "VERIFY ACCOUNT";
-        let html =
-          "<p>You are receiving this email because you signed up to armu logistics.</p>";
-        html +=
-          '<p>Click <a href="' +
-          verificationLink +
-          '">here</a> to verify you account.</p></br></br>';
-        html +=
-          "<p>If you are having trouble clicking the link, copy and paste the URL below into your web browser:</p>";
-        html += verificationLink;
-        sendMail(email, subject, html, (err, data) => {
-          if (err) {
-            return res
-              .status(500)
-              .json({ message: "Internal Error!", data: data });
-          } else {
-            return res.status(200).send({
-              status: 1,
-              message: "User registered successfully! Please verfiy account.",
-              link: verificationLink,
-              userId: userInfo.id,
-            });
-          }
+    .then((role) => {
+      roleInfo = role;
+      return userInfo.setRole(roleInfo[0]);
+    })
+    .then((roleSet) => {
+      console.log(roleInfo);
+      if (roleInfo[0].name === "farmer") {
+        return userInfo.createFarmer({ national_id: req.body.national_id });
+      } else if (roleInfo[0].name === "buyer") {
+        return userInfo.createBuyer({
+          businessRegistrationNumber: req.body.businessRegistrationNumber,
+          primaryContactName: req.body.primaryContactName,
+          city: req.body.city,
         });
+      }
+    })
+    .then((userDetails) => {
+      // send email
+      let verificationLink =
+        "http://www.armulogistics.com/auth/verifySignUp/" + vtoken;
+      let email = userInfo.email;
+      let subject = "VERIFY ACCOUNT";
+      let html =
+        "<p>You are receiving this email because you signed up to armu logistics.</p>";
+      html +=
+        '<p>Click <a href="' +
+        verificationLink +
+        '">here</a> to verify you account.</p></br></br>';
+      html +=
+        "<p>If you are having trouble clicking the link, copy and paste the URL below into your web browser:</p>";
+      html += verificationLink;
+      sendMail(email, subject, html, (err, data) => {
+        if (err) {
+          return res
+            .status(500)
+            .json({ message: "Internal Error!", data: data });
+        } else {
+          return res.status(200).send({
+            status: 1,
+            message: "User registered successfully! Please verfiy account.",
+            link: verificationLink,
+            userId: userInfo.id,
+          });
+        }
       });
     })
-
     .catch((err) => {
       res.status(500).send({ message: err.message });
     });
@@ -196,7 +210,7 @@ exports.signin = (req, res) => {
         authorities.push("ROLE_" + roles.name.toUpperCase());
         res.status(200).send({
           id: user.id,
-          username: user.first_name + " " + user.last_name,
+          username: user.name,
           email: user.email,
           roles: authorities,
           accessToken: token,

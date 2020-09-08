@@ -5,16 +5,9 @@ module.exports = (sequelize, Sequelize) => {
       defaultValue: Sequelize.UUIDV4,
       primaryKey: true,
     },
-    kra_pin: {
+    national_id: {
       type: Sequelize.STRING,
       unique: true,
-    },
-    id_number: {
-      type: Sequelize.STRING,
-      unique: true,
-    },
-    cooperative: {
-      type: Sequelize.STRING,
     },
   });
 
