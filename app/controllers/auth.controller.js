@@ -41,7 +41,7 @@ exports.signup = (req, res) => {
       }).unknown(),
       {
         then: Joi.object({
-          national_id: Joi.string().required().label("National I.D"),
+          national_id: Joi.number().required().label("National I.D"),
         }),
       }
     )
@@ -124,7 +124,7 @@ exports.signup = (req, res) => {
             .json({ message: "Internal Error!", data: data });
         } else {
           return res.status(200).send({
-            status: 1,
+            success: true,
             message: "User registered successfully! Please verfiy account.",
             link: verificationLink,
             userId: userInfo.id,
@@ -170,7 +170,7 @@ exports.resendOtp = (req, res) => {
             .json({ message: "Internal Error!", data: data });
         } else {
           return res.status(200).send({
-            status: 1,
+            success: true,
             message: "Verification link is sent! Please verfiy account.",
             link: verificationLink,
           });
