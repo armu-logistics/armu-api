@@ -4,7 +4,6 @@ const Farm = db.farm;
 const User = db.user;
 const Joi = require("joi");
 const validate = require("../../util/validation");
-const { farmer } = require("../../models");
 let errHandler = new Error();
 
 exports.createFarmerDetails = (req, res) => {
@@ -12,7 +11,6 @@ exports.createFarmerDetails = (req, res) => {
     userId: Joi.string().required().label("User Id"),
     kra_pin: Joi.string().required().label("KRA Pin"),
     id_number: Joi.string().required().label("ID Number"),
-    cooperative: Joi.string().required().label("Cooperative"),
   });
   validate(req.body, schema, res);
   let userFoundInfo, farmerDetailsCreatedInfo;
@@ -28,7 +26,6 @@ exports.createFarmerDetails = (req, res) => {
       return userFoundInfo.createFarmer({
         kra_pin: req.body.kra_pin,
         id_number: req.body.id_number,
-        cooperative: req.body.cooperative,
       });
     })
     .then((farmerDetailsCreated) => {
@@ -54,7 +51,6 @@ exports.updateFarmerDetails = (req, res) => {
   const schema = Joi.object({
     kra_pin: Joi.string().required().label("KRA Pin"),
     id_number: Joi.string().required().label("ID Number"),
-    cooperative: Joi.string().required().label("Cooperative"),
   });
   validate(req.body, schema, res);
   let farmerInfo, farmerDetailsInfo;
@@ -70,13 +66,11 @@ exports.updateFarmerDetails = (req, res) => {
         return farmerInfo.createFarmer({
           kra_pin: req.body.kra_pin,
           id_number: req.body.id_number,
-          cooperative: req.body.cooperative,
         });
       } else {
         //update farmer details
         farmerDetailsInfo.kra_pin = req.body.kra_pin;
         farmerDetailsInfo.id_number = req.body.id_number;
-        farmerDetailsInfo.cooperative = req.body.cooperative;
         return farmerDetailsInfo.save();
       }
     })
@@ -135,10 +129,10 @@ exports.createFarm = (req, res) => {
 
 exports.updateFarm = (req, res) => {
   const schema = Joi.object({
-    farm_id: Joi.string().required().label("KRA Pin"),
-    name: Joi.string().required().label("KRA Pin"),
-    location: Joi.string().required().label("ID Number"),
-    size: Joi.number().required().label("Cooperative"),
+    farm_id: Joi.string().required().label("farm id"),
+    name: Joi.string().required().label("Name of fame"),
+    location: Joi.string().required().label("Location"),
+    size: Joi.number().required().label("Size"),
   });
   validate(req.body, schema, res);
   let farmerInfo;
