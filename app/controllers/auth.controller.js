@@ -4,6 +4,7 @@ const uuid = require("uuid");
 const User = db.user;
 const Role = db.role;
 const PasswordReset = db.password_reset;
+const Farm = db.farm;
 const sendMail = require("../config/mail.config");
 const crypto = require("crypto");
 const Joi = require("joi");
@@ -42,6 +43,16 @@ exports.signup = (req, res) => {
       {
         then: Joi.object({
           national_id: Joi.number().required().label("National I.D"),
+          farms: Joi.array()
+            .items(
+              Joi.object({
+                name: Joi.string().required().label("Farm name"),
+                location: Joi.string().required().label("Farm location"),
+                size: Joi.number().required().label("Farm size"),
+              })
+            )
+            .min(1)
+            .required(),
         }),
       }
     )
@@ -62,7 +73,7 @@ exports.signup = (req, res) => {
       }
     );
   validate(req.body, schema, res);
-  let userInfo, roleInfo;
+  let userInfo, roleInfo, userDetails;
   // Save User to Database
   let vtoken = crypto.randomBytes(20).toString("hex");
 
@@ -102,7 +113,20 @@ exports.signup = (req, res) => {
         });
       }
     })
-    .then((userDetails) => {
+    .then((userDetailsInfo) => {
+      userDetails = userDetailsInfo;
+      if (userDetails.national_id) {
+        let farms = [];
+        req.body.farms.forEach((el, i) => {
+          el.farmerId = userDetails.id;
+          farms.push(el);
+        });
+        return Farm.bulkCreate(farms);
+      } else {
+        return;
+      }
+    })
+    .then(() => {
       // send email
       let verificationLink =
         "http://www.armulogistics.com/auth/verifySignUp/" + vtoken;
@@ -133,7 +157,8 @@ exports.signup = (req, res) => {
       });
     })
     .catch((err) => {
-      res.status(500).send({ message: err.message });
+      console.log(err);
+      res.status(500).send({ message: err });
     });
 };
 
@@ -271,7 +296,7 @@ exports.password_reset = (req, res) => {
     if (!user) {
       return res.status(400).send({ message: "User does not exist!." });
     } else {
-      let resetToken = Math.floor(Math.random(10000000) * 10000000);
+      let resetToken = crypto.randomBytes(20).toString("hex");
       let protocol = req.protocol;
       const PORT = process.env.PORT || 8080;
       let hostname = req.hostname + ":" + PORT;
