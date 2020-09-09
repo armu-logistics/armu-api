@@ -3,7 +3,7 @@ module.exports = {
   USER: process.env.DB_USERNAME,
   PASSWORD: process.env.DB_PASSWORD,
   DB: process.env.DB_DATABASE,
-  dialect: process.env.DB_CONNECTION,
+  dialect: "mariadb",
   pool: {
     max: 5,
     min: 0,
