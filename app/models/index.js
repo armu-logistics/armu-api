@@ -1,52 +1,58 @@
-const config = require("../config/db.config.js");
+"use strict";
 
-const Sequelize = require("sequelize");
-const sequelize = new Sequelize(config.DB, config.USER, config.PASSWORD, {
-  host: config.HOST,
-  dialect: config.dialect,
-  operatorsAliases: false,
-
-  pool: {
-    max: config.pool.max,
-    min: config.pool.min,
-    acquire: config.pool.acquire,
-    idle: config.pool.idle,
-  },
-});
-
+const fs = require("fs");
+const path = require("path");
+const Sequelize = require("sequelize").Sequelize;
+const basename = path.basename(__filename);
+const env = process.env.NODE_ENV || "development";
+const config = require("../config/db.config.js")[env];
 const db = {};
 
-db.Sequelize = Sequelize;
-db.sequelize = sequelize;
+let sequelize;
+if (config.use_env_variable) {
+  sequelize = new Sequelize(process.env[config.use_env_variable], config);
+} else {
+  sequelize = new Sequelize(config.DB, config.USER, config.PASSWORD, config);
+}
 
-db.user = require("../models/user.model.js")(sequelize, Sequelize);
-db.role = require("../models/role.model.js")(sequelize, Sequelize);
-db.farmer = require("../models/farmer.model.js")(sequelize, Sequelize);
-db.buyer = require("../models/buyer.model.js")(sequelize, Sequelize);
-db.farm = require("../models/farm.model.js")(sequelize, Sequelize);
-db.password_reset = require("../models/password_reset.model.js")(
-  sequelize,
-  Sequelize
-);
+fs.readdirSync(__dirname)
+  .filter((file) => {
+    return (
+      file.indexOf(".") !== 0 && file !== basename && file.slice(-3) === ".js"
+    );
+  })
+  .forEach((file) => {
+    const model = sequelize["import"](path.join(__dirname, file));
+    db[model.name] = model;
+  });
+Object.keys(db).forEach((modelName) => {
+  if (db[modelName].associate) {
+    db[modelName].associate(db);
+  }
+});
+console.log(db);
 // Associations
 // user and role
-db.user.belongsTo(db.role);
-db.role.hasMany(db.user);
+db.users.belongsTo(db.roles);
+db.roles.hasMany(db.users);
 // user and buyer
-db.user.hasOne(db.buyer);
-db.buyer.belongsTo(db.user);
+db.users.hasOne(db.buyers);
+db.buyers.belongsTo(db.users);
 // user and farmer
-db.user.hasOne(db.farmer);
-db.farmer.belongsTo(db.user);
+db.users.hasOne(db.farmers);
+db.farmers.belongsTo(db.users);
 //user and password_reset
-db.user.hasMany(db.password_reset);
-db.password_reset.belongsTo(db.user);
+db.users.hasMany(db.password_resets);
+db.password_resets.belongsTo(db.users);
 // role and password_reset
-db.role.hasMany(db.password_reset);
-db.password_reset.belongsTo(db.role);
+db.roles.hasMany(db.password_resets);
+db.password_resets.belongsTo(db.roles);
 // farmer and farm
-db.farmer.hasMany(db.farm);
-db.farm.belongsTo(db.farmer);
+db.farmers.hasMany(db.farms);
+db.farms.belongsTo(db.farmers);
 db.ROLES = ["buyer", "farmer", "admin"];
+
+db.sequelize = sequelize;
+db.Sequelize = Sequelize;
 
 module.exports = db;
