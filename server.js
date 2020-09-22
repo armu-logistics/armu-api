@@ -23,7 +23,7 @@ db.sequelize.sync().then(() => {
 
 // simple route
 app.get("/", (req, res) => {
-  res.json({ message: "Welcome to armu application." });
+  res.json({ message: "Welcome to armu logistics." });
 });
 
 // routes
