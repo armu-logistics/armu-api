@@ -1,6 +1,6 @@
 const db = require("../../models");
-const Buyer = db.buyer;
-const User = db.user;
+const Buyer = db.buyers;
+const User = db.users;
 const Joi = require("joi");
 const validate = require("../../util/validation");
 let errHandler = new Error();

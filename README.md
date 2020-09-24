@@ -1,4 +1,4 @@
-# ARMU – JWT Authentication & Authorization with JSONWebToken & Sequelize
+# ARMU LOGISTICS APIs
 
 ## Project setup
 

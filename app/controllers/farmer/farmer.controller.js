@@ -1,7 +1,7 @@
 const db = require("../../models");
-const Farmer = db.farmer;
-const Farm = db.farm;
-const User = db.user;
+const Farmer = db.farmers;
+const Farm = db.farms;
+const User = db.users;
 const Joi = require("joi");
 const validate = require("../../util/validation");
 let errHandler = new Error();

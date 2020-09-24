@@ -1,11 +1,14 @@
 const db = require("../models");
 const config = require("../config/auth.config");
 const uuid = require("uuid");
-const User = db.user;
-const Role = db.role;
-const PasswordReset = db.password_reset;
+const User = db.users;
+const Role = db.roles;
+const PasswordReset = db.password_resets;
+const Farm = db.farms;
 const sendMail = require("../config/mail.config");
 const crypto = require("crypto");
+const Joi = require("joi");
+const validate = require("../util/validation");
 
 const Op = db.Sequelize.Op;
 
@@ -22,7 +25,55 @@ exports.getRoles = (req, res) => {
 };
 
 exports.signup = (req, res) => {
-  let userInfo, roleInfo;
+  const schema = Joi.object({
+    name: Joi.string().required().label("Name"),
+    mobile: Joi.string().required().label("Mobile number"),
+    email: Joi.string().required().email().label("Email"),
+    kra_pin: Joi.string().required().label("KRA pin"),
+    password: Joi.string().required().label("Password"),
+    roles: Joi.array()
+      .items(Joi.string().valid("farmer", "buyer"))
+      .max(1)
+      .min(1),
+  })
+    .when(
+      Joi.object({
+        roles: Joi.array().items(Joi.string().required().valid("farmer")),
+      }).unknown(),
+      {
+        then: Joi.object({
+          national_id: Joi.number().required().label("National I.D"),
+          farms: Joi.array()
+            .items(
+              Joi.object({
+                name: Joi.string().required().label("Farm name"),
+                location: Joi.string().required().label("Farm location"),
+                size: Joi.number().required().label("Farm size"),
+              })
+            )
+            .min(1)
+            .required(),
+        }),
+      }
+    )
+    .when(
+      Joi.object({
+        roles: Joi.array().items(Joi.string().valid("buyer")),
+      }).unknown(),
+      {
+        then: Joi.object({
+          businessRegistrationNumber: Joi.string()
+            .required()
+            .label("Business Registration Number"),
+          primaryContactName: Joi.string()
+            .required()
+            .label("Primary contact name"),
+          city: Joi.string().required().label("City"),
+        }),
+      }
+    );
+  validate(req.body, schema, res);
+  let userInfo, roleInfo, userDetails;
   // Save User to Database
   let vtoken = crypto.randomBytes(20).toString("hex");
 
@@ -62,7 +113,20 @@ exports.signup = (req, res) => {
         });
       }
     })
-    .then((userDetails) => {
+    .then((userDetailsInfo) => {
+      userDetails = userDetailsInfo;
+      if (userDetails.national_id) {
+        let farms = [];
+        req.body.farms.forEach((el, i) => {
+          el.farmerId = userDetails.id;
+          farms.push(el);
+        });
+        return Farm.bulkCreate(farms);
+      } else {
+        return;
+      }
+    })
+    .then(() => {
       // send email
       let verificationLink =
         "http://www.armulogistics.com/auth/verifySignUp/" + vtoken;
@@ -84,7 +148,7 @@ exports.signup = (req, res) => {
             .json({ message: "Internal Error!", data: data });
         } else {
           return res.status(200).send({
-            status: 1,
+            success: true,
             message: "User registered successfully! Please verfiy account.",
             link: verificationLink,
             userId: userInfo.id,
@@ -93,7 +157,8 @@ exports.signup = (req, res) => {
       });
     })
     .catch((err) => {
-      res.status(500).send({ message: err.message });
+      console.log(err);
+      res.status(500).send({ message: err });
     });
 };
 
@@ -130,7 +195,7 @@ exports.resendOtp = (req, res) => {
             .json({ message: "Internal Error!", data: data });
         } else {
           return res.status(200).send({
-            status: 1,
+            success: true,
             message: "Verification link is sent! Please verfiy account.",
             link: verificationLink,
           });
@@ -231,7 +296,7 @@ exports.password_reset = (req, res) => {
     if (!user) {
       return res.status(400).send({ message: "User does not exist!." });
     } else {
-      let resetToken = Math.floor(Math.random(10000000) * 10000000);
+      let resetToken = crypto.randomBytes(20).toString("hex");
       let protocol = req.protocol;
       const PORT = process.env.PORT || 8080;
       let hostname = req.hostname + ":" + PORT;

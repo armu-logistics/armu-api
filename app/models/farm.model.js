@@ -12,7 +12,7 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING,
     },
     size: {
-      type: Sequelize.DOUBLE(255, 10),
+      type: Sequelize.DOUBLE(255, 4),
     },
   });
 
