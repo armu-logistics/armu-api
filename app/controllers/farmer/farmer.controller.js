@@ -1,7 +1,8 @@
 const db = require("../../models");
-const Farmer = db.farmers;
-const Farm = db.farms;
-const User = db.users;
+const Farmer = db.farmer;
+const Farm = db.farm;
+const User = db.user;
+const FarmerProduct = db.farmerProduct;
 const Joi = require("joi");
 const validate = require("../../util/validation");
 let errHandler = new Error();
@@ -169,3 +170,68 @@ exports.updateFarm = (req, res) => {
         .send({ success: false, message: err.message, data: err.data });
     });
 };
+
+exports.getFarms = (req, res) => {
+  User.findOne({ where: { id: req.userId }, required: true })
+    .then((userFound) => {
+      if (!userFound.length) {
+        errHandler.message = ["No user found."];
+        errHandler.statusCode = 404;
+        throw errHandler;
+      }
+      return userFound.getFarmer();
+    })
+    .then((farmerFound) => {
+      return farmerFound.getFarms();
+    })
+    .then((farmsFound) => {
+      if (farmsFound.length === 0) {
+        errHandler.message = ["No farms found."];
+        errHandler.statusCode = 404;
+        throw errHandler;
+      }
+
+      return res.send(farmsFound);
+    })
+    .catch((err) => {
+      console.log(err);
+      return res
+        .status(err.statusCode || 500)
+        .send({ success: false, message: err.message, data: err.data });
+    });
+};
+
+exports.addProduct = (req, res) => {
+  const schema = Joi.object({
+    productDescription: Joi.string().required().label("Product descirption"),
+    pricePerBag: Joi.number().required().label("Price per pag"),
+    numberOfBags: Joi.number().required().label("Number of Bags"),
+    pickUpLocation: Joi.string().required().label("Pick up location"),
+    farmId: Joi.string().required().label("Farm id"),
+    productGradeId: Joi.string().required().label("Product grade id"),
+  });
+  validate(req.body, schema, res);
+  FarmerProduct.create({
+    productDescription: req.body.productDescription,
+    pricePerBag: req.body.pricePerBag,
+    numberOfBags: req.body.numberOfBags,
+    pickUpLocation: req.body.pickUpLocation,
+    farmId: req.body.farmId,
+    productGradeId: req.body.productGradeId,
+    status: "posted",
+  })
+    .then((farmerProduct) => {
+      let farmerProductCreated = farmerProduct;
+      return res.send({
+        success: true,
+        message: "Product created successfully.",
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      return res
+        .status(err.statusCode || 500)
+        .send({ success: false, message: err.message, data: err.data });
+    });
+};
+exports.getProductGrades = (req, res) => {};

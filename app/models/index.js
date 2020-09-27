@@ -33,24 +33,42 @@ Object.keys(db).forEach((modelName) => {
 console.log(db);
 // Associations
 // user and role
-db.users.belongsTo(db.roles);
-db.roles.hasMany(db.users);
+db.user.belongsTo(db.role);
+db.role.hasMany(db.user);
 // user and buyer
-db.users.hasOne(db.buyers);
-db.buyers.belongsTo(db.users);
+db.user.hasOne(db.buyer);
+db.buyer.belongsTo(db.user);
 // user and farmer
-db.users.hasOne(db.farmers);
-db.farmers.belongsTo(db.users);
-//user and password_reset
-db.users.hasMany(db.password_resets);
-db.password_resets.belongsTo(db.users);
-// role and password_reset
-db.roles.hasMany(db.password_resets);
-db.password_resets.belongsTo(db.roles);
+db.user.hasOne(db.farmer);
+db.farmer.belongsTo(db.user);
+//user and passwordReset
+db.user.hasMany(db.passwordReset);
+db.passwordReset.belongsTo(db.user);
+// role and passwordReset
+db.role.hasMany(db.passwordReset);
+db.passwordReset.belongsTo(db.role);
 // farmer and farm
-db.farmers.hasMany(db.farms);
-db.farms.belongsTo(db.farmers);
+db.farmer.hasMany(db.farm);
+db.farm.belongsTo(db.farmer);
 db.ROLES = ["buyer", "farmer", "admin"];
+//product and grade
+db.product.belongsToMany(db.grade, {
+  through: db.productGrade,
+  foreignKey: "productId",
+});
+db.grade.belongsToMany(db.product, {
+  through: db.productGrade,
+  foreignKey: "gradeId",
+});
+//productGrade and farm
+db.farm.belongsToMany(db.productGrade, {
+  through: db.farmerProduct,
+  foreignKey: "farmId",
+});
+db.productGrade.belongsToMany(db.farm, {
+  through: db.farmerProduct,
+  foreignKey: "productGradeId",
+});
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;

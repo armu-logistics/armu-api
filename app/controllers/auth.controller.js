@@ -1,10 +1,10 @@
 const db = require("../models");
 const config = require("../config/auth.config");
 const uuid = require("uuid");
-const User = db.users;
-const Role = db.roles;
-const PasswordReset = db.password_resets;
-const Farm = db.farms;
+const User = db.user;
+const Role = db.role;
+const PasswordReset = db.passwordReset;
+const Farm = db.farm;
 const sendMail = require("../config/mail.config");
 const crypto = require("crypto");
 const Joi = require("joi");
@@ -287,7 +287,7 @@ exports.signin = (req, res) => {
     });
 };
 
-exports.password_reset = (req, res) => {
+exports.passwordReset = (req, res) => {
   User.findOne({
     where: {
       email: req.body.email,
@@ -340,7 +340,7 @@ exports.password_reset = (req, res) => {
   });
 };
 
-exports.password_reset_token = (req, res) => {
+exports.passwordReset_token = (req, res) => {
   PasswordReset.findOne({
     where: {
       token: req.params.resetToken,
