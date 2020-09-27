@@ -15,9 +15,20 @@ module.exports = function (app) {
     [authJwt.verifyToken, authJwt.isFarmer],
     controller.createFarm
   );
+  app.get(
+    "/api/farmer/profile/farms/get",
+    [authJwt.verifyToken, authJwt.isFarmer],
+    controller.getFarms
+  );
   app.post(
     "/api/farmer/profile/update-farm",
     [authJwt.verifyToken, authJwt.isFarmer],
     controller.updateFarm
   );
+  app.post(
+    "/api/farmer/product/add",
+    [authJwt.verifyToken, authJwt.isFarmer],
+    controller.addProduct
+  );
+  app.post("/api/farmer/get-product-grades", controller.getProductGrades);
 };
