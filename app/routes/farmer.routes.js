@@ -30,5 +30,5 @@ module.exports = function (app) {
     [authJwt.verifyToken, authJwt.isFarmer],
     controller.addProduct
   );
-  app.post("/api/farmer/get-product-grades", controller.getProductGrades);
+  app.get("/api/farmer/get-product-grades", controller.getProductGrades);
 };

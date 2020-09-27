@@ -4,6 +4,8 @@ const Farm = db.farm;
 const User = db.user;
 const FarmerProduct = db.farmerProduct;
 const ProductGrade = db.productGrade;
+const Product = db.product;
+const Grade = db.grade;
 const Joi = require("joi");
 const validate = require("../../util/validation");
 let errHandler = new Error();
@@ -235,4 +237,8 @@ exports.addProduct = (req, res) => {
         .send({ success: false, message: err.message, data: err.data });
     });
 };
-exports.getProductGrades = (req, res) => {};
+exports.getProductGrades = (req, res) => {
+  Product.findAll({ include: { model: Grade } }).then((productGrades) => {
+    return res.send(productGrades);
+  });
+};
