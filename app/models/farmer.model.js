@@ -1,5 +1,5 @@
 module.exports = (sequelize, Sequelize) => {
-  const Farmer = sequelize.define("farmers", {
+  const Farmer = sequelize.define("farmer", {
     id: {
       type: Sequelize.UUID,
       defaultValue: Sequelize.UUIDV4,

@@ -1,5 +1,5 @@
 const db = require("../models/");
-const Role = db.roles;
+const Role = db.role;
 
 exports.sync = (req, res) => {
   function initial() {
