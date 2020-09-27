@@ -31,6 +31,7 @@ require("./app/routes/auth.routes")(app);
 require("./app/routes/user.routes")(app);
 require("./app/routes/buyer.routes")(app);
 require("./app/routes/farmer.routes")(app);
+require("./app/routes/admin.routes")(app);
 
 //error handling middleware
 app.use((err, req, res, next) => {
