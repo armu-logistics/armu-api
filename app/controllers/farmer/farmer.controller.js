@@ -3,6 +3,7 @@ const Farmer = db.farmer;
 const Farm = db.farm;
 const User = db.user;
 const FarmerProduct = db.farmerProduct;
+const ProductGrade = db.productGrade;
 const Joi = require("joi");
 const validate = require("../../util/validation");
 let errHandler = new Error();
@@ -174,7 +175,7 @@ exports.updateFarm = (req, res) => {
 exports.getFarms = (req, res) => {
   User.findOne({ where: { id: req.userId }, required: true })
     .then((userFound) => {
-      if (!userFound.length) {
+      if (!userFound) {
         errHandler.message = ["No user found."];
         errHandler.statusCode = 404;
         throw errHandler;
@@ -182,7 +183,7 @@ exports.getFarms = (req, res) => {
       return userFound.getFarmer();
     })
     .then((farmerFound) => {
-      return farmerFound.getFarms();
+      return farmerFound.getFarms({ include: { model: ProductGrade } });
     })
     .then((farmsFound) => {
       if (farmsFound.length === 0) {
