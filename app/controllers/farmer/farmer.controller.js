@@ -3,98 +3,12 @@ const Farmer = db.farmer;
 const Farm = db.farm;
 const User = db.user;
 const FarmerProduct = db.farmerProduct;
+const ProductGrade = db.productGrade;
+const Product = db.product;
+const Grade = db.grade;
 const Joi = require("joi");
 const validate = require("../../util/validation");
 let errHandler = new Error();
-
-exports.createFarmerDetails = (req, res) => {
-  const schema = Joi.object({
-    userId: Joi.string().required().label("User Id"),
-    kra_pin: Joi.string().required().label("KRA Pin"),
-    id_number: Joi.string().required().label("ID Number"),
-  });
-  validate(req.body, schema, res);
-  let userFoundInfo, farmerDetailsCreatedInfo;
-  User.findOne({ where: { id: req.body.userId } })
-    .then((userFound) => {
-      userFoundInfo = userFound;
-      if (!userFoundInfo) {
-        errHandler.success = false;
-        errHandler.message = ["User id is invalid."];
-        errHandler.statusCode = 400;
-        throw errHandler;
-      }
-      return userFoundInfo.createFarmer({
-        kra_pin: req.body.kra_pin,
-        id_number: req.body.id_number,
-      });
-    })
-    .then((farmerDetailsCreated) => {
-      farmerDetailsCreatedInfo = farmerDetailsCreated;
-      if (!farmerDetailsCreatedInfo) {
-        return res.status(500).send({ message: ["Error occurred."] });
-      }
-      return res.status(200).send({
-        success: true,
-        message: ["Farmer details created successfully."],
-        data: farmerDetailsCreatedInfo,
-      });
-    })
-    .catch((err) => {
-      console.log(err);
-      return res
-        .status(err.statusCode || 500)
-        .send({ success: false, message: err.message, data: err.data });
-    });
-};
-
-exports.updateFarmerDetails = (req, res) => {
-  const schema = Joi.object({
-    kra_pin: Joi.string().required().label("KRA Pin"),
-    id_number: Joi.string().required().label("ID Number"),
-  });
-  validate(req.body, schema, res);
-  let farmerInfo, farmerDetailsInfo;
-  User.findByPk(req.userId)
-    .then((farmerFound) => {
-      farmerInfo = farmerFound;
-      return farmerInfo.getFarmer();
-    })
-    .then((farmerDetails) => {
-      farmerDetailsInfo = farmerDetails;
-      if (!farmerDetailsInfo) {
-        //create farmer details
-        return farmerInfo.createFarmer({
-          kra_pin: req.body.kra_pin,
-          id_number: req.body.id_number,
-        });
-      } else {
-        //update farmer details
-        farmerDetailsInfo.kra_pin = req.body.kra_pin;
-        farmerDetailsInfo.id_number = req.body.id_number;
-        return farmerDetailsInfo.save();
-      }
-    })
-    .then((createUpdate) => {
-      if (!createUpdate) {
-        errHandler.success = false;
-        errHandler.message = ["Error occurred."];
-        errHandler.statusCode = 500;
-        throw errHandler;
-      }
-      return res.status(200).send({
-        success: true,
-        message: ["Farmer details updated successfully."],
-        data: createUpdate,
-      });
-    })
-    .catch((err) => {
-      console.log(err);
-      return res
-        .status(err.statusCode || 500)
-        .send({ success: false, message: err.message, data: err.data });
-    });
-};
 
 exports.createFarm = (req, res) => {
   const schema = Joi.object({
@@ -174,7 +88,7 @@ exports.updateFarm = (req, res) => {
 exports.getFarms = (req, res) => {
   User.findOne({ where: { id: req.userId }, required: true })
     .then((userFound) => {
-      if (!userFound.length) {
+      if (!userFound) {
         errHandler.message = ["No user found."];
         errHandler.statusCode = 404;
         throw errHandler;
@@ -182,7 +96,7 @@ exports.getFarms = (req, res) => {
       return userFound.getFarmer();
     })
     .then((farmerFound) => {
-      return farmerFound.getFarms();
+      return farmerFound.getFarms({ include: { model: ProductGrade } });
     })
     .then((farmsFound) => {
       if (farmsFound.length === 0) {
@@ -234,4 +148,8 @@ exports.addProduct = (req, res) => {
         .send({ success: false, message: err.message, data: err.data });
     });
 };
-exports.getProductGrades = (req, res) => {};
+exports.getProductGrades = (req, res) => {
+  Product.findAll({ include: { model: Grade } }).then((productGrades) => {
+    return res.send(productGrades);
+  });
+};
