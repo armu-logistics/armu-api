@@ -70,6 +70,33 @@ db.productGrade.belongsToMany(db.farm, {
   foreignKey: "productGradeId",
 });
 
+//product and bid
+db.product.hasMany(db.bid);
+db.bid.belongsTo(db.product);
+//buyer and order
+db.buyer.belongsToMany(db.order, {
+  through: db.bid,
+  foreignKey: "buyerId",
+});
+db.order.belongsToMany(db.buyer, {
+  through: db.bid,
+  foreignKey: "orderId",
+});
+//buyer and paymentMethod
+db.buyer.hasMany(db.paymentMethod);
+db.paymentMethod.belongsTo(db.buyer);
+//farmerProduct and offer
+db.farmerProduct.hasMany(db.offer);
+db.offer.belongsTo(db.farmerProduct);
+//offer and order
+db.offer.hasOne(db.order);
+db.order.belongsTo(db.offer);
+//invoice and order
+db.invoice.hasMany(db.order);
+db.order.belongsTo(db.invoice);
+// invoice and payment
+db.invoice.hasMany(db.payment);
+db.payment.belongsTo(db.invoice);
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
