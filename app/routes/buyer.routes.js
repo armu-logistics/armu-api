@@ -1,5 +1,6 @@
 const { authJwt } = require("../middleware");
 const controller = require("../controllers/buyer/buyer.controller");
+<<<<<<< HEAD
 module.exports = function (app) {
   // app.post(
   //   "/api/buyer/profile/create-buyer-details",
@@ -11,3 +12,6 @@ module.exports = function (app) {
   //   controller.updateBuyerDetails
   // );
 };
+=======
+module.exports = function (app) {};
+>>>>>>> setup
