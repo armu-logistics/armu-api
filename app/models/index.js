@@ -50,7 +50,7 @@ db.passwordReset.belongsTo(db.role);
 // farmer and farm
 db.farmer.hasMany(db.farm);
 db.farm.belongsTo(db.farmer);
-db.ROLES = ["buyer", "farmer", "admin"];
+
 //product and grade
 db.product.belongsToMany(db.grade, {
   through: db.productGrade,
@@ -99,5 +99,5 @@ db.invoice.hasMany(db.payment);
 db.payment.belongsTo(db.invoice);
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
-
+db.ROLES = ["buyer", "farmer", "admin"];
 module.exports = db;
