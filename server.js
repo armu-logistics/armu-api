@@ -17,9 +17,14 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 const db = require("./app/models");
 
-db.sequelize.sync().then(() => {
-  initial.sync();
-});
+db.sequelize
+  .sync()
+  .then(() => {
+    initial.sync();
+  })
+  .catch((err) => {
+    console.log(err);
+  });
 
 // simple route
 app.get("/", (req, res) => {
