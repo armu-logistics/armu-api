@@ -273,7 +273,7 @@ exports.signin = (req, res) => {
       var authorities = [];
       user.getRole().then((roles) => {
         authorities.push("ROLE_" + roles.name.toUpperCase());
-        res.status(200).send({
+        return res.status(200).send({
           id: user.id,
           username: user.name,
           email: user.email,

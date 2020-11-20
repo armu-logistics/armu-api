@@ -21,5 +21,9 @@ module.exports = function (app) {
     [authJwt.verifyToken, authJwt.isFarmer],
     controller.addProduct
   );
-  app.get("/api/farmer/get-product-grades", controller.getProductGrades);
+  app.get(
+    "/api/farmer/get-posted-products",
+    [authJwt.verifyToken, authJwt.isFarmer],
+    controller.getPostedProducts
+  );
 };
