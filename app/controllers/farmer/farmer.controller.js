@@ -96,7 +96,7 @@ exports.getFarms = (req, res) => {
       return userFound.getFarmer();
     })
     .then((farmerFound) => {
-      return farmerFound.getFarms({ include: { model: ProductGrade } });
+      return farmerFound.getFarms({ include: { model: FarmerProduct } });
     })
     .then((farmsFound) => {
       if (farmsFound.length === 0) {
