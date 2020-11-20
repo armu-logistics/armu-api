@@ -18,6 +18,38 @@ const checkDuplicateEmail = (req, res, next) => {
     next();
   });
 };
+const checkDuplicateMobileNumber = (req, res, next) => {
+  // Email
+  User.findOne({
+    where: {
+      mobile: req.body.mobile,
+    },
+  }).then((user) => {
+    if (user) {
+      res.status(400).send({
+        message: "Failed! Mobile number is already in use!",
+      });
+      return;
+    }
+    next();
+  });
+};
+const checkDuplicateKRA = (req, res, next) => {
+  // Email
+  User.findOne({
+    where: {
+      kra_pin: req.body.kra_pin,
+    },
+  }).then((user) => {
+    if (user) {
+      res.status(400).send({
+        message: "Failed! KRA pin is already in use!",
+      });
+      return;
+    }
+    next();
+  });
+};
 
 const checkRolesExisted = (req, res, next) => {
   if (req.body.roles) {
@@ -42,6 +74,8 @@ const checkRolesExisted = (req, res, next) => {
 const verifySignUp = {
   checkDuplicateEmail: checkDuplicateEmail,
   checkRolesExisted: checkRolesExisted,
+  checkDuplicateMobileNumber: checkDuplicateMobileNumber,
+  checkDuplicateKRA: checkDuplicateKRA,
 };
 
 module.exports = verifySignUp;
