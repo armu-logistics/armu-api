@@ -122,18 +122,33 @@ exports.addProduct = (req, res) => {
     numberOfBags: Joi.number().required().label("Number of Bags"),
     pickUpLocation: Joi.string().required().label("Pick up location"),
     farmId: Joi.string().required().label("Farm id"),
-    productGradeId: Joi.string().required().label("Product grade id"),
+    productId: Joi.string().required().label("Product id"),
+    gradeId: Joi.string().required().label("Grade id"),
   });
   validate(req.body, schema, res);
-  FarmerProduct.create({
-    productDescription: req.body.productDescription,
-    pricePerBag: req.body.pricePerBag,
-    numberOfBags: req.body.numberOfBags,
-    pickUpLocation: req.body.pickUpLocation,
-    farmId: req.body.farmId,
-    productGradeId: req.body.productGradeId,
-    status: "posted",
+  let productGradeFoundInfo;
+  ProductGrade.findOne({
+    where: { productId: req.body.productId, gradeId: req.body.gradeId },
   })
+    .then((productGradeFound) => {
+      productGradeFoundInfo = productGradeFound;
+      if (!productGradeFoundInfo) {
+        errHandler.message = [
+          "The product grade combination has not been found.",
+        ];
+        errHandler.statusCode = 404;
+        throw errHandler;
+      }
+      return FarmerProduct.create({
+        productDescription: req.body.productDescription,
+        pricePerBag: req.body.pricePerBag,
+        numberOfBags: req.body.numberOfBags,
+        pickUpLocation: req.body.pickUpLocation,
+        farmId: req.body.farmId,
+        productGradeId: productGradeFoundInfo.id,
+        status: "posted",
+      });
+    })
     .then((farmerProduct) => {
       let farmerProductCreated = farmerProduct;
       return res.send({
@@ -148,8 +163,40 @@ exports.addProduct = (req, res) => {
         .send({ success: false, message: err.message, data: err.data });
     });
 };
-exports.getProductGrades = (req, res) => {
-  Product.findAll({ include: { model: Grade } }).then((productGrades) => {
-    return res.send(productGrades);
-  });
+exports.getPostedProducts = (req, res) => {
+  let farmerProductsFoundInfo;
+  FarmerProduct.findAll({
+    include: [
+      { model: ProductGrade, include: [{ model: Product }, { model: Grade }] },
+      {
+        model: Farm,
+        required: true,
+        include: {
+          model: Farmer,
+          required: true,
+          include: {
+            model: User,
+            where: { id: req.userId },
+            attributes: ["id", "name", "mobile", "email", "kra_pin"],
+            required: true,
+          },
+        },
+      },
+    ],
+  })
+    .then((farmerProductsFound) => {
+      farmerProductsFoundInfo = farmerProductsFound;
+      if (farmerProductsFoundInfo.length == 0) {
+        errHandler.message = ["No posted products found."];
+        errHandler.statusCode = 404;
+        throw errHandler;
+      }
+      res.send(farmerProductsFoundInfo);
+    })
+    .catch((err) => {
+      console.log(err);
+      return res
+        .status(err.statusCode || 500)
+        .send({ success: false, message: err.message, data: err.data });
+    });
 };

@@ -52,21 +52,32 @@ db.farmer.hasMany(db.farm);
 db.farm.belongsTo(db.farmer);
 
 //product and grade
-db.product.belongsToMany(db.grade, {
-  through: db.productGrade,
+db.product.hasMany(db.productGrade, {
   foreignKey: "productId",
 });
-db.grade.belongsToMany(db.product, {
-  through: db.productGrade,
+db.productGrade.belongsTo(db.product, {
+  foreignKey: "productId",
+});
+db.grade.hasMany(db.productGrade, {
+  foreignKey: "gradeId",
+});
+db.productGrade.belongsTo(db.grade, {
   foreignKey: "gradeId",
 });
 //productGrade and farm
-db.farm.belongsToMany(db.productGrade, {
-  through: db.farmerProduct,
+db.farm.hasMany(db.farmerProduct, {
   foreignKey: "farmId",
 });
-db.productGrade.belongsToMany(db.farm, {
-  through: db.farmerProduct,
+db.farmerProduct.belongsTo(db.farm, {
+  foreignKey: "farmId",
+});
+
+// farmerProduct and productGrade
+
+db.productGrade.hasMany(db.farmerProduct, {
+  foreignKey: "productGradeId",
+});
+db.farmerProduct.belongsTo(db.productGrade, {
   foreignKey: "productGradeId",
 });
 

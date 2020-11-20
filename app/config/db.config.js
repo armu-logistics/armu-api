@@ -5,6 +5,7 @@ module.exports = {
     PASSWORD: process.env.DB_PASSWORD,
     DB: process.env.DB_DATABASE,
     dialect: "mariadb",
+    camelCase: true,
     pool: {
       max: 5,
       min: 0,
@@ -18,6 +19,7 @@ module.exports = {
     PASSWORD: process.env.DB_PASSWORD,
     DB: process.env.DB_DATABASE,
     dialect: "mariadb",
+    camelCase: true,
     pool: {
       max: 5,
       min: 0,
@@ -31,6 +33,7 @@ module.exports = {
     PASSWORD: process.env.DB_PASSWORD,
     DB: process.env.DB_DATABASE,
     dialect: "mariadb",
+    camelCase: true,
     pool: {
       max: 5,
       min: 0,
