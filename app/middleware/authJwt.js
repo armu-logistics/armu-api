@@ -82,19 +82,25 @@ const isModeratorOrAdmin = (req, res, next) => {
 
 // isfarmer
 const isFarmer = (req, res, next) => {
-  User.findByPk(req.userId).then((user) => {
-    user.getRole().then((role) => {
-      if (role.name === "farmer") {
-        next();
-        return;
-      }
-
-      res.status(403).send({
-        message: "Require Farmer Role!",
+  User.findByPk(req.userId)
+    .then((user) => {
+      user.getRole().then((role) => {
+        if (role.name === "farmer") {
+          next();
+          return;
+        } else {
+          return res.status(403).send({
+            message: "Require Farmer Role!",
+          });
+        }
       });
-      return;
+    })
+    .catch((err) => {
+      console.log(err);
+      return res
+        .status(err.statusCode || 500)
+        .send({ success: false, message: err.message, data: err.data });
     });
-  });
 };
 // is buyer
 const isBuyer = (req, res, next) => {
