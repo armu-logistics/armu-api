@@ -292,52 +292,60 @@ exports.passwordReset = (req, res) => {
     where: {
       email: req.body.email,
     },
-  }).then((user) => {
-    if (!user) {
-      return res.status(400).send({ message: "User does not exist!." });
-    } else {
-      let resetToken = crypto.randomBytes(20).toString("hex");
-      let protocol = req.protocol;
-      const PORT = process.env.PORT || 8080;
-      let hostname = req.hostname + ":" + PORT;
-      let resetLink =
-        protocol + "://" + hostname + "/api/auth/password-reset/" + resetToken;
-      //save reset info to db
-      PasswordReset.create({
-        email: user.email,
-        token: resetToken,
-      }).then((reset) => {
-        reset.setUser(user);
-        Role.findOne({ where: { id: user.roleId } }).then((role) => {
-          reset.setRole(role);
+  })
+    .then((user) => {
+      if (!user) {
+        return res.status(400).send({ message: "User does not exist!." });
+      } else {
+        let resetToken = crypto.randomBytes(20).toString("hex");
+        let protocol = req.protocol;
+        const PORT = process.env.PORT || 8080;
+        let hostname = req.hostname + ":" + PORT;
+        let resetLink =
+          protocol +
+          "://" +
+          hostname +
+          "/api/auth/password-reset/" +
+          resetToken;
+        //save reset info to db
+        PasswordReset.create({
+          email: user.email,
+          token: resetToken,
+        }).then((reset) => {
+          reset.setUser(user);
+          Role.findOne({ where: { id: user.roleId } }).then((role) => {
+            reset.setRole(role);
+          });
+          // send email
+          let email = user.email;
+          let subject = "PASSWORD RESET";
+          let html =
+            "<p>You are receiving this email because we received a password reset request for your account.</p>";
+          html +=
+            '<p>Click <a href="' +
+            resetLink +
+            '">here</a> to reset your password.</p></br></br>';
+          html +=
+            "<p>If you are having trouble clicking the link, copy and paste the URL below into your web browser:</p>";
+          html += resetLink;
+          sendMail(email, subject, html, (err, data) => {
+            if (err) {
+              return res
+                .status(500)
+                .json({ message: "Internal Error!", data: data });
+            } else {
+              return res.status(200).send({
+                message: "Email sent. Click on the link provided.",
+                resetLink: resetLink,
+              });
+            }
+          });
         });
-        // send email
-        let email = user.email;
-        let subject = "PASSWORD RESET";
-        let html =
-          "<p>You are receiving this email because we received a password reset request for your account.</p>";
-        html +=
-          '<p>Click <a href="' +
-          resetLink +
-          '">here</a> to reset your password.</p></br></br>';
-        html +=
-          "<p>If you are having trouble clicking the link, copy and paste the URL below into your web browser:</p>";
-        html += resetLink;
-        sendMail(email, subject, html, (err, data) => {
-          if (err) {
-            return res
-              .status(500)
-              .json({ message: "Internal Error!", data: data });
-          } else {
-            return res.status(200).send({
-              message: "Email sent. Click on the link provided.",
-              resetLink: resetLink,
-            });
-          }
-        });
-      });
-    }
-  });
+      }
+    })
+    .catch((err) => {
+      res.status(500).send({ message: err.message });
+    });
 };
 
 exports.passwordReset_token = (req, res) => {
