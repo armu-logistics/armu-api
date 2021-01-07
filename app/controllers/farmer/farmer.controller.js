@@ -154,6 +154,7 @@ exports.addProduct = (req, res) => {
       return res.send({
         success: true,
         message: "Product created successfully.",
+        data: farmerProductCreated,
       });
     })
     .catch((err) => {
