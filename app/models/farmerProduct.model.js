@@ -22,8 +22,16 @@ module.exports = (sequelize, Sequelize) => {
       status: {
         type: Sequelize.STRING,
       },
-      farmId: { type: Sequelize.UUID, defaultValue: Sequelize.UUIDV4 },
-      productGradeId: { type: Sequelize.UUID, defaultValue: Sequelize.UUIDV4 },
+      farmId: {
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4,
+        unique: false,
+      },
+      productGradeId: {
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4,
+        unique: false,
+      },
     },
     { freezeTableName: true, tableName: "farmerProducts" }
   );
