@@ -8,8 +8,16 @@ module.exports = (sequelize, Sequelize) => {
     // name: {
     //   type: Sequelize.STRING,
     // },
-    productId: { type: Sequelize.UUID, defaultValue: Sequelize.UUIDV4 },
-    gradeId: { type: Sequelize.UUID, defaultValue: Sequelize.UUIDV4 },
+    productId: {
+      type: Sequelize.UUID,
+      defaultValue: Sequelize.UUIDV4,
+      unique: false,
+    },
+    gradeId: {
+      type: Sequelize.UUID,
+      defaultValue: Sequelize.UUIDV4,
+      unique: false,
+    },
   });
 
   return productGrade;

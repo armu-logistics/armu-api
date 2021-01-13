@@ -14,10 +14,12 @@ module.exports = (sequelize, Sequelize) => {
     orderId: {
       type: Sequelize.UUID,
       defaultValue: Sequelize.UUIDV4,
+      unique: false,
     },
     farmerProductId: {
       type: Sequelize.UUID,
       defaultValue: Sequelize.UUIDV4,
+      unique: false,
     },
   });
 
