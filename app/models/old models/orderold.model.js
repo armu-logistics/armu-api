@@ -5,23 +5,29 @@ module.exports = (sequelize, Sequelize) => {
       defaultValue: Sequelize.UUIDV4,
       primaryKey: true,
     },
-    count: {
-      type: Sequelize.INTEGER,
-      autoIncrement: true,
-      primaryKey: false,
-      unique: true,
-    },
-    userId: {
+    bidId: {
       type: Sequelize.UUID,
       defaultValue: Sequelize.UUIDV4,
       unique: false,
     },
-    farmerProductId: {
+    productId: {
       type: Sequelize.UUID,
       defaultValue: Sequelize.UUIDV4,
       unique: false,
     },
-    status: {
+    price: {
+      type: Sequelize.FLOAT(255, 2),
+    },
+    _orderDate: {
+      type: Sequelize.DATEONLY,
+    },
+    get orderDate() {
+      return this._orderDate;
+    },
+    set orderDate(value) {
+      this._orderDate = value;
+    },
+    paymentMethod: {
       type: Sequelize.STRING,
     },
   });
