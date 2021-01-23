@@ -6,4 +6,14 @@ module.exports = function (app) {
     [authJwt.verifyToken, authJwt.isBuyer],
     controller.getPostedProducts
   );
+  app.post(
+    "/api/buyer/buy-posted-product",
+    [authJwt.verifyToken, authJwt.isBuyer],
+    controller.buyPostedProduct
+  );
+  app.get(
+    "/api/buyer/get-orders",
+    [authJwt.verifyToken, authJwt.isBuyer],
+    controller.getOrders
+  );
 };

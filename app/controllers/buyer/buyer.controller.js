@@ -9,11 +9,11 @@ const FarmerProduct = db.farmerProduct;
 const ProductGrade = db.productGrade;
 const Product = db.product;
 const Grade = db.grade;
+const Order = db.order;
 let errHandler = new Error();
 
 exports.getPostedProducts = (req, res) => {
   let farmerProductsFoundInfo;
-  console.log(db);
   FarmerProduct.findAll({
     include: [
       { model: ProductGrade, include: [{ model: Product }, { model: Grade }] },
@@ -46,5 +46,68 @@ exports.getPostedProducts = (req, res) => {
       return res
         .status(err.statusCode || 500)
         .send({ success: false, message: err.message, data: err.data });
+    });
+};
+
+exports.buyPostedProduct = (req, res) => {
+  const schema = Joi.object({
+    farmerProductId: Joi.string().required().label("farm product id"),
+  });
+  validate(req.body, schema, res);
+  let product, productOrdered;
+  FarmerProduct.findByPk(req.body.farmerProductId)
+    .then((farmerProductFound) => {
+      product = farmerProductFound;
+      if (!product) {
+        errHandler.message = ["Product not found."];
+        errHandler.statusCode = 404;
+        throw errHandler;
+      }
+      product.status = "bought";
+      return product.save();
+    })
+    .then((productBought) => {
+      productOrdered = productBought;
+      return Order.create({
+        userId: req.userId,
+        farmerProductId: product.id,
+        status: "ordered",
+      });
+    })
+    .then(() => {
+      return res.send({
+        success: true,
+        message: ["Product purchased successfully. "],
+        data: productOrdered,
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      return res
+        .status(err.statusCode || 500)
+        .send({ success: false, message: err.message, data: err.data });
+    });
+};
+
+exports.getOrders = (req, res) => {
+  let orders;
+  Order.findAll({
+    where: { userId: req.userId },
+    include: { model: FarmerProduct },
+  })
+    .then((ordersFound) => {
+      orders = ordersFound;
+      if (orders.length < 1) {
+        errHandler.message = ["No orders found."];
+        errHandler.statusCode = 404;
+        throw errHandler;
+      }
+      return res.send({ success: true, orders: orders });
+    })
+    .catch((err) => {
+      console.log(err);
+      return res
+        .status(err.statusCode || 500)
+        .send({ success: false, message: err.message });
     });
 };
