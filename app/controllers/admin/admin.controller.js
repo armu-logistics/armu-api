@@ -6,6 +6,7 @@ const Grade = db.grade;
 const Product = db.product;
 const Joi = require("joi");
 const validate = require("../../util/validation");
+const FarmerProduct = db.farmerProduct;
 let errHandler = new Error();
 
 exports.addGrade = (req, res) => {
@@ -42,6 +43,42 @@ exports.addProduct = (req, res) => {
     })
     .catch((err) => {
       console.log(err);
+      return res
+        .status(err.statusCode || 500)
+        .send({ success: false, message: err.message, data: err.data });
+    });
+};
+
+exports.getAllProducts = (req, res) => {
+  let farmerProductsFoundInfo;
+  FarmerProduct.findAll({
+    include: [
+      { model: ProductGrade, include: [{ model: Product }, { model: Grade }] },
+      {
+        model: Farm,
+        required: true,
+        include: {
+          model: Farmer,
+          required: true,
+          include: {
+            model: User,
+            attributes: ["id", "name", "mobile", "email", "kra_pin"],
+            required: true,
+          },
+        },
+      },
+    ],
+  })
+    .then((farmerProductsFound) => {
+      farmerProductsFoundInfo = farmerProductsFound;
+      if (farmerProductsFoundInfo.length == 0) {
+        errHandler.message = ["No products found."];
+        errHandler.statusCode = 404;
+        throw errHandler;
+      }
+      res.send(farmerProductsFoundInfo);
+    })
+    .catch((err) => {
       return res
         .status(err.statusCode || 500)
         .send({ success: false, message: err.message, data: err.data });

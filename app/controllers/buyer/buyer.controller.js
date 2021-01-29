@@ -63,7 +63,7 @@ exports.buyPostedProduct = (req, res) => {
         errHandler.statusCode = 404;
         throw errHandler;
       }
-      product.status = "bought";
+      product.status = "pending_review";
       return product.save();
     })
     .then((productBought) => {
