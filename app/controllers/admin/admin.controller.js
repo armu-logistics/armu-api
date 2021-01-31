@@ -7,6 +7,7 @@ const Product = db.product;
 const Joi = require("joi");
 const validate = require("../../util/validation");
 const FarmerProduct = db.farmerProduct;
+const Order = db.order;
 let errHandler = new Error();
 
 exports.addGrade = (req, res) => {
@@ -54,6 +55,7 @@ exports.getAllProducts = (req, res) => {
   FarmerProduct.findAll({
     include: [
       { model: ProductGrade, include: [{ model: Product }, { model: Grade }] },
+      { model: Order },
       {
         model: Farm,
         required: true,
@@ -77,6 +79,49 @@ exports.getAllProducts = (req, res) => {
         throw errHandler;
       }
       res.send(farmerProductsFoundInfo);
+    })
+    .catch((err) => {
+      return res
+        .status(err.statusCode || 500)
+        .send({ success: false, message: err.message, data: err.data });
+    });
+};
+
+exports.updateOrderStatus = (req, res) => {
+  const schema = Joi.object({
+    orderId: Joi.string().required().label("Name"),
+    status: Joi.string()
+      .required()
+      .valid("approved", "declined")
+      .label("Order status"),
+  });
+  validate(req.body, schema, res);
+  let orderFound;
+  Order.findOne({
+    where: { id: req.body.orderId },
+    include: { model: FarmerProduct },
+  })
+    .then((orderInstance) => {
+      orderFound = orderInstance;
+      if (!orderFound) {
+        errHandler.message = ["Order not found."];
+        errHandler.statusCode = 404;
+        throw errHandler;
+      }
+      if (req.body.status == "approved") {
+        orderFound.status = "approved";
+        orderFound.farmerProduct.status = "bought";
+      } else if (req.body.status == "declined") {
+        orderFound.status = "declined";
+        orderFound.farmerProduct.status = "posted";
+      }
+      return Promise.all([orderFound.save(), orderFound.farmerProduct.save()]);
+    })
+    .then((orderStatusUpdatedInstance) => {
+      return res.send({
+        success: true,
+        message: "Order status updated successfully.",
+      });
     })
     .catch((err) => {
       return res

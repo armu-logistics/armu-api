@@ -8,4 +8,9 @@ module.exports = function (app) {
     [authJwt.isAdmin],
     controller.getAllProducts
   );
+  app.put(
+    "/api/admin/update-order-status",
+    [authJwt.isAdmin],
+    controller.updateOrderStatus
+  );
 };

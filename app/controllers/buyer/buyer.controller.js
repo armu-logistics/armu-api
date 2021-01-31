@@ -15,6 +15,7 @@ let errHandler = new Error();
 exports.getPostedProducts = (req, res) => {
   let farmerProductsFoundInfo;
   FarmerProduct.findAll({
+    where: { status: "posted" },
     include: [
       { model: ProductGrade, include: [{ model: Product }, { model: Grade }] },
       {
