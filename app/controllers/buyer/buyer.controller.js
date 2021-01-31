@@ -15,6 +15,7 @@ let errHandler = new Error();
 exports.getPostedProducts = (req, res) => {
   let farmerProductsFoundInfo;
   FarmerProduct.findAll({
+    where: { status: "posted" },
     include: [
       { model: ProductGrade, include: [{ model: Product }, { model: Grade }] },
       {
@@ -63,7 +64,7 @@ exports.buyPostedProduct = (req, res) => {
         errHandler.statusCode = 404;
         throw errHandler;
       }
-      product.status = "bought";
+      product.status = "pending_review";
       return product.save();
     })
     .then((productBought) => {
