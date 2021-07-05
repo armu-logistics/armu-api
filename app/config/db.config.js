@@ -10,6 +10,8 @@ module.exports = {
   port: process.env.DB_PORT,
   camelCase: true,
   dialect: process.env.DB_CONNECTION,
+  native: true,
+  ssl: true,
   dialectOptions: {
     // ssl: {
     //   require: Boolean.parse(process.env.DB_SSL_REQUIRE),
