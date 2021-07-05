@@ -1,3 +1,7 @@
+var falsy = /^(?:f(?:alse)?|no?|0+)$/i;
+Boolean.parse = function (val) {
+  return !falsy.test(val) && !!val;
+};
 module.exports = {
   host: process.env.DB_HOST,
   user: process.env.DB_USERNAME,
@@ -7,10 +11,7 @@ module.exports = {
   port: process.env.DB_PORT,
   camelCase: true,
   dialectOptions: {
-    ssl: {
-      require: true, // This will help you. But you will see nwe error
-      rejectUnauthorized: false, // This line will fix new error
-    },
+    ssl: Boolean.parse(process.env.DB_SSL),
   },
   pool: {
     max: 5,
