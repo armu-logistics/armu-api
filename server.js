@@ -20,7 +20,7 @@ const db = require("./app/models");
 db.sequelize
   .sync()
   .then(() => {
-    initial.sync();
+    initial.sync({ alter: true });
   })
   .catch((err) => {
     console.log(err);
