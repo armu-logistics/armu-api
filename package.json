@@ -31,6 +31,8 @@
     "mysql2": "^2.2.5",
     "nodemailer": "^6.4.17",
     "nodemailer-plugin-inline-base64": "^2.1.1",
+    "pg": "^8.6.0",
+    "pg-hstore": "^2.3.4",
     "sequelize": "^5.22.3"
   }
 }
