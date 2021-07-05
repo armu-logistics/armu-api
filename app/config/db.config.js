@@ -32,7 +32,7 @@ module.exports = {
     USER: process.env.DB_USERNAME,
     PASSWORD: process.env.DB_PASSWORD,
     DB: process.env.DB_DATABASE,
-    dialect: "mariadb",
+    dialect: "postgres",
     camelCase: true,
     pool: {
       max: 5,
