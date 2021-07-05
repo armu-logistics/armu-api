@@ -11,10 +11,11 @@ module.exports = {
   camelCase: true,
   dialect: process.env.DB_CONNECTION,
   dialectOptions: {
-    ssl: {
-      require: Boolean.parse(process.env.DB_SSL_REQUIRE),
-      rejectUnauthorized: Boolean.parse(process.env.DB_SSL_REJECT_UNAUTHORISED),
-    },
+    // ssl: {
+    //   require: Boolean.parse(process.env.DB_SSL_REQUIRE),
+    //   rejectUnauthorized: Boolean.parse(process.env.DB_SSL_REJECT_UNAUTHORISED),
+    // },
+    ssl: Boolean.parse(process.env.DB_SSL_REQUIRE),
   },
   pool: {
     max: 5,
