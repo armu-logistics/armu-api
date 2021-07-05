@@ -7,11 +7,14 @@ module.exports = {
   user: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
   db: process.env.DB_DATABASE,
-  dialect: process.env.DB_CONNECTION,
   port: process.env.DB_PORT,
   camelCase: true,
+  dialect: process.env.DB_CONNECTION,
   dialectOptions: {
-    ssl: Boolean.parse(process.env.DB_SSL),
+    // ssl: {
+    //   require: Boolean.parse(process.env.DB_SSL_REQUIRE),
+    //   rejectUnauthorized: Boolean.parse(process.env.DB_SSL_REJECT_UNAUTHORISED),
+    // },
   },
   pool: {
     max: 5,
