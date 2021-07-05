@@ -6,6 +6,12 @@ module.exports = {
   dialect: process.env.DB_CONNECTION,
   port: process.env.DB_PORT,
   camelCase: true,
+  dialectOptions: {
+    ssl: {
+      require: true, // This will help you. But you will see nwe error
+      rejectUnauthorized: false, // This line will fix new error
+    },
+  },
   pool: {
     max: 5,
     min: 0,
