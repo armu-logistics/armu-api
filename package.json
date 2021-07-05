@@ -30,6 +30,7 @@
     "mariadb": "^2.5.2",
     "mysql2": "^2.2.5",
     "nodemailer": "^6.4.17",
+    "nodemailer-plugin-inline-base64": "^2.1.1",
     "sequelize": "^5.22.3"
   }
 }
