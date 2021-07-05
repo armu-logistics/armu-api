@@ -1,3 +1,4 @@
+const highlight = require("cli-highlight").highlight;
 var falsy = /^(?:f(?:alse)?|no?|0+)$/i;
 Boolean.parse = function (val) {
   return !falsy.test(val) && !!val;
@@ -15,6 +16,13 @@ module.exports = {
       require: Boolean.parse(process.env.DB_SSL_REQUIRE),
       rejectUnauthorized: Boolean.parse(process.env.DB_SSL_REJECT_UNAUTHORISED),
     },
+    dateStrings: true,
+    typeCast: true,
+    useUTC: false,
+  },
+  timezone: "Africa/Nairobi",
+  logging(log) {
+    console.log(highlight(log, { language: "sql", ignoreIllegals: true }));
   },
   pool: {
     max: 5,
