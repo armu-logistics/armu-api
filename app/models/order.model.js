@@ -5,12 +5,12 @@ module.exports = (sequelize, Sequelize) => {
       defaultValue: Sequelize.UUIDV4,
       primaryKey: true,
     },
-    count: {
-      type: Sequelize.INTEGER,
-      autoIncrement: true,
-      primaryKey: false,
-      unique: true,
-    },
+    // count: {
+    //   type: Sequelize.INTEGER,
+    //   autoIncrement: true,
+    //   primaryKey: false,
+    //   unique: true,
+    // },
     userId: {
       type: Sequelize.UUID,
       defaultValue: Sequelize.UUIDV4,
