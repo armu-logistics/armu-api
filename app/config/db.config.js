@@ -10,7 +10,7 @@ module.exports = {
   port: process.env.DB_PORT,
   camelCase: true,
   dialect: process.env.DB_CONNECTION,
-  native: true,
+  native: false,
   ssl: true,
   dialectOptions: {
     // ssl: {
