@@ -129,7 +129,7 @@ exports.signup = (req, res) => {
     .then(() => {
       // send email
       let verificationLink =
-        "http://dev.armulogistics.com:8081/verifySignUp/" + vtoken;
+        `${process.env.BASE_URL_CLIENT}/verifySignUp/` + vtoken;
       let email = userInfo.email;
       let subject = "VERIFY ACCOUNT";
       let html =
@@ -176,7 +176,7 @@ exports.resendOtp = (req, res) => {
     })
     .then((updated) => {
       let verificationLink =
-        "http://dev.armulogistics.com:8081/resend-otp/" + token;
+        `${process.env.BASE_URL_CLIENT}/resend-otp/` + token;
       let email = req.body.email;
       let subject = "VERIFY ACCOUNT";
       let html =
