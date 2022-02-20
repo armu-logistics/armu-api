@@ -37,7 +37,7 @@ exports.getPostedProducts = (req, res) => {
       farmerProductsFoundInfo = farmerProductsFound;
       if (farmerProductsFoundInfo.length == 0) {
         errHandler.message = ["No posted products found."];
-        errHandler.statusCode = 404;
+        errHandler.statusCode = 200;
         throw errHandler;
       }
       res.send(farmerProductsFoundInfo);
@@ -61,7 +61,7 @@ exports.buyPostedProduct = (req, res) => {
       product = farmerProductFound;
       if (!product) {
         errHandler.message = ["Product not found."];
-        errHandler.statusCode = 404;
+        errHandler.statusCode = 200;
         throw errHandler;
       }
       product.status = "pending_review";
@@ -100,7 +100,7 @@ exports.getOrders = (req, res) => {
       orders = ordersFound;
       if (orders.length < 1) {
         errHandler.message = ["No orders found."];
-        errHandler.statusCode = 404;
+        errHandler.statusCode = 200;
         throw errHandler;
       }
       return res.send({ success: true, orders: orders });

@@ -75,7 +75,7 @@ exports.getAllProducts = (req, res) => {
       farmerProductsFoundInfo = farmerProductsFound;
       if (farmerProductsFoundInfo.length == 0) {
         errHandler.message = ["No products found."];
-        errHandler.statusCode = 404;
+        errHandler.statusCode = 200;
         throw errHandler;
       }
       res.send(farmerProductsFoundInfo);
@@ -105,7 +105,7 @@ exports.updateOrderStatus = (req, res) => {
       orderFound = orderInstance;
       if (!orderFound) {
         errHandler.message = ["Order not found."];
-        errHandler.statusCode = 404;
+        errHandler.statusCode = 200;
         throw errHandler;
       }
       if (req.body.status == "approved") {

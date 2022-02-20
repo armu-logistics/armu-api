@@ -245,12 +245,14 @@ exports.signin = (req, res) => {
   })
     .then((user) => {
       if (!user) {
-        return res.status(404).send({ message: "User Not found." });
+        return res
+          .status(200)
+          .send({ success: false, message: "User Not found." });
       }
 
       if (user.verified != 1) {
         return res
-          .status(401)
+          .status(200)
           .send({ success: false, message: "Please verify account." });
       }
 
@@ -260,7 +262,8 @@ exports.signin = (req, res) => {
       );
 
       if (!passwordIsValid) {
-        return res.status(401).send({
+        return res.status(200).send({
+          success: false,
           accessToken: null,
           message: "Invalid Password!",
         });
@@ -295,7 +298,9 @@ exports.passwordReset = (req, res) => {
   })
     .then((user) => {
       if (!user) {
-        return res.status(400).send({ message: "User does not exist!." });
+        return res
+          .status(200)
+          .send({ success: false, message: "User does not exist!." });
       } else {
         let resetToken = crypto.randomBytes(20).toString("hex");
         let protocol = req.protocol;
