@@ -60,7 +60,7 @@ exports.updateFarm = (req, res) => {
         if (farmFound.length === 0) {
           errHandler.success = false;
           errHandler.message = ["Farm not found."];
-          errHandler.statusCode = 404;
+          errHandler.statusCode = 200;
           throw errHandler;
         }
         let farm = farmFound[0];
@@ -90,7 +90,7 @@ exports.getFarms = (req, res) => {
     .then((userFound) => {
       if (!userFound) {
         errHandler.message = ["No user found."];
-        errHandler.statusCode = 404;
+        errHandler.statusCode = 200;
         throw errHandler;
       }
       return userFound.getFarmer();
@@ -101,7 +101,7 @@ exports.getFarms = (req, res) => {
     .then((farmsFound) => {
       if (farmsFound.length === 0) {
         errHandler.message = ["No farms found."];
-        errHandler.statusCode = 404;
+        errHandler.statusCode = 200;
         throw errHandler;
       }
 
@@ -136,7 +136,7 @@ exports.addProduct = (req, res) => {
         errHandler.message = [
           "The product grade combination has not been found.",
         ];
-        errHandler.statusCode = 404;
+        errHandler.statusCode = 200;
         throw errHandler;
       }
       return FarmerProduct.create({
@@ -189,7 +189,7 @@ exports.getPostedProducts = (req, res) => {
       farmerProductsFoundInfo = farmerProductsFound;
       if (farmerProductsFoundInfo.length == 0) {
         errHandler.message = ["No posted products found."];
-        errHandler.statusCode = 404;
+        errHandler.statusCode = 200;
         throw errHandler;
       }
       res.send(farmerProductsFoundInfo);
