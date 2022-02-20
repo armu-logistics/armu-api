@@ -21,6 +21,10 @@ app.get("/", (req, res) => {
   res.json({ message: "Welcome to armu logistics." });
 });
 
+app.post("/", (req, res) => {
+  res.json({ message: "Welcome to armu logistics." });
+});
+
 // routes
 require("./app/routes/auth.routes")(app);
 require("./app/routes/user.routes")(app);
