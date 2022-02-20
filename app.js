@@ -4,6 +4,7 @@ const cors = require("cors");
 require("dotenv").config();
 const app = express();
 const uuid = require("uuid");
+const morgan = require("morgan");
 
 app.use(cors());
 
@@ -12,6 +13,8 @@ app.use(bodyParser.json());
 
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: true }));
+
+app.use(morgan("combined"));
 
 // simple route
 app.get("/", (req, res) => {
