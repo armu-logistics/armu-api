@@ -3,6 +3,17 @@ var falsy = /^(?:f(?:alse)?|no?|0+)$/i;
 Boolean.parse = function (val) {
   return !falsy.test(val) && !!val;
 };
+
+const ssl =
+  process.env.NODE_ENV == "production"
+    ? {
+        require: Boolean.parse(process.env.DB_SSL_REQUIRE),
+        rejectUnauthorized: Boolean.parse(
+          process.env.DB_SSL_REJECT_UNAUTHORISED
+        ),
+      }
+    : false;
+
 module.exports = {
   host: process.env.DB_HOST,
   user: process.env.DB_USERNAME,
@@ -12,10 +23,7 @@ module.exports = {
   camelCase: true,
   dialect: process.env.DB_CONNECTION,
   dialectOptions: {
-    ssl: {
-      require: Boolean.parse(process.env.DB_SSL_REQUIRE),
-      rejectUnauthorized: Boolean.parse(process.env.DB_SSL_REJECT_UNAUTHORISED),
-    },
+    ssl,
     dateStrings: true,
     typeCast: true,
     useUTC: false,
