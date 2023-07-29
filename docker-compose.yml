@@ -1,0 +1,25 @@
+version: "3"
+services:
+  nodejs-app:
+    build: .
+    ports:
+      - "8085:8085"
+    depends_on:
+      # - mongodb
+      - postgres
+
+  # mongodb:
+  #   image: mongo:latest
+  #   container_name: armu-mongodb
+  #   ports:
+  #     - "27017:27017"
+
+  postgres:
+    image: postgres:latest
+    container_name: armu-postgres
+    environment:
+      DB_DATABASE: your_postgres_db_name
+      DB_USERNAME: your_postgres_username
+      DB_PASSWORD: your_postgres_password
+    ports:
+      - "5432:5432"
