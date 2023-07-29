@@ -13,8 +13,8 @@ function serverListen(port) {
 
 async function startApplication() {
   try {
-    await db.sequelize.sync({ alter: true });
-    await sync();
+    // await db.sequelize.sync({ alter: true });
+    // await sync();
     serverListen(PORT);
   } catch (error) {
     console.error(error);
